@@ -1,0 +1,97 @@
+@baseUrl = http://localhost:8000
+@json = application/json
+
+###
+# Health (если у тебя есть /docs — можно просто открыть Swagger)
+GET {{baseUrl}}/docs
+
+###
+# 1) CREATE: POST /advertisement
+POST {{baseUrl}}/advertisement
+Content-Type: {{json}}
+
+{
+  "title": "Продам RTX 4090",
+  "description": "Новая, в коробке. Самовывоз.",
+  "price": "2500.00",
+  "author": "Voldemar"
+}
+
+###
+# 2) GET by id: GET /advertisement/{id}
+# Поставь сюда id из ответа CREATE (или используй @adId ниже в примере автосохранения)
+@adId = 1
+GET {{baseUrl}}/advertisement/{{adId}}
+
+###
+# 3) PATCH: PATCH /advertisement/{id}
+PATCH {{baseUrl}}/advertisement/{{adId}}
+Content-Type: {{json}}
+
+{
+  "price": "2399.99",
+  "description": "Срочно. Возможен торг."
+}
+
+###
+# 4) SEARCH: GET /advertisement?{query_string}
+# 4.1 общий поиск q
+GET {{baseUrl}}/advertisement?q=rtx
+
+###
+# 4.2 поиск по author
+GET {{baseUrl}}/advertisement?author=Voldemar
+
+###
+# 4.3 поиск по title
+GET {{baseUrl}}/advertisement?title=Продам
+
+###
+# 4.4 поиск по description
+GET {{baseUrl}}/advertisement?description=торг
+
+###
+# 4.5 фильтр по цене (диапазон)
+GET {{baseUrl}}/advertisement?price_from=1000&price_to=3000
+
+###
+# 4.6 пагинация
+GET {{baseUrl}}/advertisement?limit=10&offset=0
+
+###
+# 4.7 комбинированный запрос
+GET {{baseUrl}}/advertisement?q=rtx&author=Voldemar&price_from=2000&price_to=2600&limit=20&offset=0
+
+###
+# 5) DELETE: DELETE /advertisement/{id}
+DELETE {{baseUrl}}/advertisement/{{adId}}
+
+###
+# 6) NEGATIVE CASES
+# 6.1 GET missing => 404
+GET {{baseUrl}}/advertisement/9999999
+
+###
+# 6.2 PATCH missing => 404
+PATCH {{baseUrl}}/advertisement/9999999
+Content-Type: {{json}}
+
+{
+  "price": "123.45"
+}
+
+###
+# 6.3 DELETE missing => 404
+DELETE {{baseUrl}}/advertisement/9999999
+
+###
+# 6.4 CREATE invalid (price <= 0) => 422
+POST {{baseUrl}}/advertisement
+Content-Type: {{json}}
+
+{
+  "title": "Неверная цена",
+  "description": "Должно упасть с 422",
+  "price": "0",
+  "author": "Tester"
+}
